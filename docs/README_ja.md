@@ -20,6 +20,13 @@
 
 ## インストール
 
+### Homebrew
+
+```bash
+brew tap tominaga-h/tap
+brew install tominaga-h/tap/mdc
+```
+
 ### GitHub Releases からダウンロード
 
 [最新リリース](https://github.com/tominaga-h/multi-docker-commander/releases/latest)からビルド済みバイナリをダウンロードできます。

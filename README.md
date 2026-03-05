@@ -22,6 +22,13 @@ While `docker-compose` has the `-d` option for background execution, mdc can als
 
 ## Installation
 
+### Homebrew
+
+```bash
+brew tap tominaga-h/tap
+brew install tominaga-h/tap/mdc
+```
+
 ### Download from GitHub Releases
 
 You can download pre-built binaries from the [latest release](https://github.com/tominaga-h/multi-docker-commander/releases/latest).
