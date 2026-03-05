@@ -1,7 +1,7 @@
 # multi-docker-commander (mdc)
 
 [![build](https://img.shields.io/github/actions/workflow/status/tominaga-h/multi-docker-commander/ci.yml?branch=develop)](https://github.com/tominaga-h/multi-docker-commander/actions/workflows/ci.yml)
-[![version](https://img.shields.io/badge/version-0.2.1-blue)](https://github.com/tominaga-h/multi-docker-commander/releases/tag/v0.2.1)
+[![version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/tominaga-h/multi-docker-commander/releases/tag/v1.0.0)
 
 **複数リポジトリにまたがる** Docker 環境の起動・停止を、**1つのコマンドで一括管理・実行** するための CLI ツール。
 
@@ -13,6 +13,7 @@
 - プロジェクト間の並列 (`parallel`) / 直列 (`sequential`) 実行モードを選択可能
 - バックグラウンドプロセスの管理と状態確認 (`mdc proc`)
 - プロジェクト名プレフィックス付きのログ出力で視認性を確保
+- 設定ファイルの管理コマンド (`mdc init` / `mdc edit` / `mdc rm`)
 - YAML ベースのシンプルな設定ファイル
 
 [![asciicast](../images/demo.gif)](https://asciinema.org/a/803734)
@@ -24,7 +25,7 @@
 [最新リリース](https://github.com/tominaga-h/multi-docker-commander/releases/latest)からビルド済みバイナリをダウンロードできます。
 
 ```bash
-curl -L -o mdc https://github.com/tominaga-h/multi-docker-commander/releases/download/v0.2.1/mdc
+curl -L -o mdc https://github.com/tominaga-h/multi-docker-commander/releases/download/v1.0.0/mdc
 chmod +x mdc
 sudo mv mdc /usr/local/bin/
 ```
@@ -49,15 +50,21 @@ make build-v
 
 ## クイックスタート
 
-### 1. 設定ディレクトリの作成
+### 1. 設定ファイルの作成
 
 ```bash
-mkdir -p ~/.config/mdc
+mdc init myproject
 ```
 
-### 2. 設定ファイルの作成
+`~/.config/mdc/myproject.yml` にテンプレートが生成されます。作成後すぐにエディタで開くこともできます:
 
-`~/.config/mdc/myproject.yml` を作成します:
+```bash
+mdc init myproject --edit
+```
+
+### 2. 設定ファイルの編集
+
+生成されたテンプレートをプロジェクト構成に合わせて編集します:
 
 ```yaml
 execution_mode: "parallel"
@@ -80,6 +87,8 @@ projects:
       down:
         - command: "docker compose down"
 ```
+
+`mdc edit myproject` で後からエディタで開くこともできます。
 
 ### 3. 起動と停止
 
@@ -196,6 +205,42 @@ mdc down myproject
 mdc list
 mdc ls
 ```
+
+### `mdc init <config-name>`
+
+`~/.config/mdc/` に YAML 設定ファイルのテンプレートを新規作成します。拡張子 `.yml` は省略可能です。
+
+```bash
+mdc init myproject           # ~/.config/mdc/myproject.yml を作成
+mdc init myproject --edit    # 作成後に $EDITOR で開く
+mdc init myproject -e        # 短縮形
+```
+
+| オプション | 説明 |
+|---|---|
+| `--edit`, `-e` | 作成後に `$EDITOR` でファイルを開く |
+
+### `mdc edit <config-name>`
+
+指定した設定ファイルをエディタで開きます。環境変数 `$EDITOR` を優先し、未設定の場合は `vim` を使用します。
+
+```bash
+mdc edit myproject
+```
+
+### `mdc rm <config-name>`
+
+指定した設定ファイルを `~/.config/mdc/` から削除します。削除前に確認プロンプトが表示されます。
+
+```bash
+mdc rm myproject             # 確認プロンプト "[y/n]" が表示される
+mdc rm myproject --force     # 確認をスキップ
+mdc rm myproject -f          # 短縮形
+```
+
+| オプション | 説明 |
+|---|---|
+| `--force`, `-f` | 確認プロンプトをスキップする |
 
 ### `mdc proc` (エイリアス: `mdc procs`)
 

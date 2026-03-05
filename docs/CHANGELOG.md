@@ -5,6 +5,20 @@
 フォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.1.0/) に準拠し、
 バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [1.0.0] - 2026-03-05
+
+### Added
+
+- `mdc init <config-name>` コマンドで設定ファイルのテンプレートを新規作成 (#17)
+- `mdc edit <config-name>` コマンドで設定ファイルをエディタで直接編集 (#19)
+- `mdc rm <config-name>` コマンドで設定ファイルを削除 (#20)
+- README を英語化し、日本語版を `docs/README_ja.md` に分離 (#18)
+- デモ GIF を README に追加
+
+### Changed
+
+- README 全体の見直しとコマンドリファレンスの充実
+
 ## [0.2.1] - 2026-02-28
 
 ### Added

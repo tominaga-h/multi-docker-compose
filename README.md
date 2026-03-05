@@ -1,7 +1,7 @@
 # multi-docker-commander (mdc)
 
 [![build](https://img.shields.io/github/actions/workflow/status/tominaga-h/multi-docker-commander/ci.yml?branch=develop)](https://github.com/tominaga-h/multi-docker-commander/actions/workflows/ci.yml)
-[![version](https://img.shields.io/badge/version-0.2.1-blue)](https://github.com/tominaga-h/multi-docker-commander/releases/tag/v0.2.1)
+[![version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/tominaga-h/multi-docker-commander/releases/tag/v1.0.0)
 
 [日本語版のREAMDEはこちら](../README.md)
 
@@ -15,6 +15,7 @@ While `docker-compose` has the `-d` option for background execution, mdc can als
 - Selectable `parallel` / `sequential` execution modes between projects
 - Background process management and status monitoring (`mdc proc`)
 - Project name prefix in log output for better visibility
+- Configuration file management (`mdc init` / `mdc edit` / `mdc rm`)
 - Simple YAML-based configuration files
 
 [![asciicast](images/demo.gif)](https://asciinema.org/a/803734)
@@ -26,7 +27,7 @@ While `docker-compose` has the `-d` option for background execution, mdc can als
 You can download pre-built binaries from the [latest release](https://github.com/tominaga-h/multi-docker-commander/releases/latest).
 
 ```bash
-curl -L -o mdc https://github.com/tominaga-h/multi-docker-commander/releases/download/v0.2.1/mdc
+curl -L -o mdc https://github.com/tominaga-h/multi-docker-commander/releases/download/v1.0.0/mdc
 chmod +x mdc
 sudo mv mdc /usr/local/bin/
 ```
@@ -51,15 +52,21 @@ make build-v
 
 ## Quick Start
 
-### 1. Create the Configuration Directory
+### 1. Create a Configuration File
 
 ```bash
-mkdir -p ~/.config/mdc
+mdc init myproject
 ```
 
-### 2. Create a Configuration File
+This creates a template at `~/.config/mdc/myproject.yml`. To open it in your editor immediately:
 
-Create `~/.config/mdc/myproject.yml`:
+```bash
+mdc init myproject --edit
+```
+
+### 2. Edit the Configuration File
+
+Edit the generated template to match your project setup:
 
 ```yaml
 execution_mode: "parallel"
@@ -82,6 +89,8 @@ projects:
       down:
         - command: "docker compose down"
 ```
+
+You can also open the file later with `mdc edit myproject`.
 
 ### 3. Start and Stop
 
@@ -198,6 +207,42 @@ Lists configuration files in `~/.config/mdc/`. Also available as `mdc ls`.
 mdc list
 mdc ls
 ```
+
+### `mdc init <config-name>`
+
+Creates a new YAML configuration template in `~/.config/mdc/`. The `.yml` extension can be omitted.
+
+```bash
+mdc init myproject           # Creates ~/.config/mdc/myproject.yml
+mdc init myproject --edit    # Create and open in $EDITOR
+mdc init myproject -e        # Short form
+```
+
+| Option | Description |
+|---|---|
+| `--edit`, `-e` | Open the created file in `$EDITOR` after creation |
+
+### `mdc edit <config-name>`
+
+Opens the specified configuration file in your editor. Uses the `$EDITOR` environment variable, or falls back to `vim` if not set.
+
+```bash
+mdc edit myproject
+```
+
+### `mdc rm <config-name>`
+
+Removes the specified configuration file from `~/.config/mdc/`. Prompts for confirmation before deletion.
+
+```bash
+mdc rm myproject             # Prompts "Are you sure? [y/n]"
+mdc rm myproject --force     # Skip confirmation
+mdc rm myproject -f          # Short form
+```
+
+| Option | Description |
+|---|---|
+| `--force`, `-f` | Skip the confirmation prompt |
 
 ### `mdc proc` (alias: `mdc procs`)
 

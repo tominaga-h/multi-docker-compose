@@ -55,6 +55,21 @@ func ExpandHome(path string) (string, error) {
 	return filepath.Join(home, path[1:]), nil
 }
 
+func ContractHome(path string) string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return path
+	}
+	if path == home {
+		return "~"
+	}
+	prefix := home + string(os.PathSeparator)
+	if strings.HasPrefix(path, prefix) {
+		return "~" + string(os.PathSeparator) + path[len(prefix):]
+	}
+	return path
+}
+
 func BaseMDCDir() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -140,6 +155,106 @@ func LoadFromDir(configDir, name string) (*Config, error) {
 	}
 
 	return &cfg, nil
+}
+
+const configTemplate = `# mdc 設定ファイル
+# コメントを外して、プロジェクトの情報を記入してください。
+#
+# execution_mode: プロジェクト間の実行モード
+#   "parallel"    - 全プロジェクトを同時に実行
+#   "sequential"  - プロジェクトを定義順に1つずつ処理
+#
+# projects[].name: プロジェクト名 (ログ出力のプレフィックスに使用)
+# projects[].path: プロジェクトのディレクトリパス (~展開対応)
+# projects[].commands.up: 起動時に実行するコマンドのリスト
+# projects[].commands.down: 停止時に実行するコマンドのリスト
+# commands[][].command: 実行するコマンド文字列
+# commands[][].background: true でバックグラウンド実行 (デフォルト: false)
+
+# execution_mode: "parallel"
+# projects:
+#   - name: "Frontend"
+#     path: "/path/to/frontend-repo"
+#     commands:
+#       up:
+#         - command: "docker compose up -d"
+#         - command: "npm run dev"
+#           background: true
+#       down:
+#         - command: "docker compose down"
+#
+#   - name: "Backend-API"
+#     path: "/path/to/backend-api-repo"
+#     commands:
+#       up:
+#         - command: "docker compose up -d"
+#       down:
+#         - command: "docker compose down"
+`
+
+func normalizeConfigName(name string) string {
+	ext := filepath.Ext(name)
+	if ext == ".yml" || ext == ".yaml" {
+		return strings.TrimSuffix(name, ext)
+	}
+	return name
+}
+
+func CreateConfig(configDir, name string) (string, error) {
+	if err := os.MkdirAll(configDir, 0755); err != nil {
+		return "", fmt.Errorf("failed to create config directory %s: %w", configDir, err)
+	}
+
+	baseName := normalizeConfigName(name)
+	targetPath := filepath.Join(configDir, baseName+".yml")
+
+	for _, ext := range []string{".yml", ".yaml"} {
+		candidate := filepath.Join(configDir, baseName+ext)
+		if _, err := os.Stat(candidate); err == nil {
+			return "", fmt.Errorf("config file already exists: %s", candidate)
+		}
+	}
+
+	if err := os.WriteFile(targetPath, []byte(configTemplate), 0644); err != nil {
+		return "", fmt.Errorf("failed to write config file %s: %w", targetPath, err)
+	}
+
+	return targetPath, nil
+}
+
+func ResolveConfigPath(name string) (string, error) {
+	configDir, err := DefaultConfigDir()
+	if err != nil {
+		return "", err
+	}
+	return resolveConfigPath(configDir, name)
+}
+
+func CreateDefaultConfig(name string) (string, error) {
+	configDir, err := DefaultConfigDir()
+	if err != nil {
+		return "", err
+	}
+	return CreateConfig(configDir, name)
+}
+
+func RemoveConfig(configDir, name string) (string, error) {
+	path, err := resolveConfigPath(configDir, name)
+	if err != nil {
+		return "", err
+	}
+	if err := os.Remove(path); err != nil {
+		return "", fmt.Errorf("failed to remove config file %s: %w", path, err)
+	}
+	return path, nil
+}
+
+func RemoveDefaultConfig(name string) (string, error) {
+	configDir, err := DefaultConfigDir()
+	if err != nil {
+		return "", err
+	}
+	return RemoveConfig(configDir, name)
 }
 
 func (c *Config) validate() error {
