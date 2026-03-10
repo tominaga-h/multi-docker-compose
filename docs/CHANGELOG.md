@@ -5,6 +5,13 @@
 フォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.1.0/) に準拠し、
 バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [2.0.0] - 2026-03-10
+
+### Added
+
+- `mdc proc kill <PID>` コマンドでバックグラウンドプロセスとその子プロセスツリーを強制終了 (#21)
+- README に Homebrew からのインストール手順を追加
+
 ## [1.0.0] - 2026-03-05
 
 ### Added
