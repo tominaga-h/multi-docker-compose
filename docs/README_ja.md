@@ -181,6 +181,15 @@ commands:
     - "docker compose down"
 ```
 
+`commands.down` に `mdc proc kill` を記述すると、mdc が管理するバックグラウンドプロセスを一括停止できます。runner が自動的に `-c <設定名>` を付与するため、`mdc proc kill` とだけ記述すれば動作します:
+
+```yaml
+commands:
+  down:
+    - command: "docker compose down"
+    - command: "mdc proc kill"
+```
+
 ### 実行モード
 
 - **parallel**: 全プロジェクトを Goroutine で同時に実行します。各プロジェクト内のコマンドは直列で実行されます。
@@ -288,6 +297,22 @@ mdc proc stop 12345
 ```bash
 mdc proc restart 12345
 ```
+
+#### `mdc proc kill`
+
+設定名または PID を指定してバックグラウンドプロセスを終了します。`-c` で指定した設定に属する全プロセスを一括終了、`-p` で単一プロセスを終了できます。
+
+YAML の `commands.down` に `mdc proc kill` と記述すると、runner が自動的に `-c <設定名>` を付与して実行します。
+
+```bash
+mdc proc kill -c myproject    # 指定した設定の全プロセスを終了
+mdc proc kill -p 12345        # 指定した PID のプロセスを終了
+```
+
+| オプション | 説明 |
+|---|---|
+| `-c`, `--config` | 全プロセスを終了する設定名 |
+| `-p`, `--pid` | 終了するプロセスの PID |
 
 ### `mdc --version`
 
