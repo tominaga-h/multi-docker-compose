@@ -183,6 +183,15 @@ commands:
     - "docker compose down"
 ```
 
+You can use `mdc proc kill` in `commands.down` to stop all background processes managed by mdc. The runner automatically appends `-c <config-name>`, so you only need to write `mdc proc kill`:
+
+```yaml
+commands:
+  down:
+    - command: "docker compose down"
+    - command: "mdc proc kill"
+```
+
 ### Execution Modes
 
 - **parallel**: All projects run concurrently using Goroutines. Commands within each project are still executed sequentially.
@@ -290,6 +299,22 @@ Restarts the background process with the specified PID.
 ```bash
 mdc proc restart 12345
 ```
+
+#### `mdc proc kill`
+
+Kills background processes by config name or PID. Use `-c` to kill all processes belonging to a config, or `-p` to kill a single process by PID.
+
+When `mdc proc kill` is used in YAML `commands.down`, the runner automatically appends `-c <config-name>`.
+
+```bash
+mdc proc kill -c myproject    # Kill all processes for a config
+mdc proc kill -p 12345        # Kill a single process by PID
+```
+
+| Option | Description |
+|---|---|
+| `-c`, `--config` | Config name to kill all processes for |
+| `-p`, `--pid` | PID of the process to kill |
 
 ### `mdc --version`
 
