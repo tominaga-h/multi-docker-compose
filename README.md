@@ -1,7 +1,7 @@
 # multi-docker-commander (mdc)
 
 [![build](https://img.shields.io/github/actions/workflow/status/tominaga-h/multi-docker-commander/ci.yml?branch=develop)](https://github.com/tominaga-h/multi-docker-commander/actions/workflows/ci.yml)
-[![version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/tominaga-h/multi-docker-commander/releases/tag/v1.0.0)
+[![version](https://img.shields.io/badge/version-2.0.0-blue)](https://github.com/tominaga-h/multi-docker-commander/releases/tag/v2.0.0)
 
 [日本語版のREAMDEはこちら](../README.md)
 
@@ -34,7 +34,7 @@ brew install tominaga-h/tap/mdc
 You can download pre-built binaries from the [latest release](https://github.com/tominaga-h/multi-docker-commander/releases/latest).
 
 ```bash
-curl -L -o mdc https://github.com/tominaga-h/multi-docker-commander/releases/download/v1.0.0/mdc
+curl -L -o mdc https://github.com/tominaga-h/multi-docker-commander/releases/download/v2.0.0/mdc
 chmod +x mdc
 sudo mv mdc /usr/local/bin/
 ```
