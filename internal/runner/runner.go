@@ -137,14 +137,25 @@ func runProjectBuffered(pc projectCommands, configName string) error {
 	return nil
 }
 
+func expandProcKill(command, configName string) string {
+	trimmed := strings.TrimSpace(command)
+	if trimmed == "mdc proc kill" {
+		return trimmed + " -c " + configName
+	}
+	return command
+}
+
 func execCommand(p config.Project, item config.CommandItem, configName string, buffered bool) error {
-	logger.Start(p.Name, item.Command)
+	command := expandProcKill(item.Command, configName)
+	logger.Start(p.Name, command)
 
 	if item.Background {
-		return execBackgroundCommand(p, item, configName)
+		expanded := item
+		expanded.Command = command
+		return execBackgroundCommand(p, expanded, configName)
 	}
 
-	cmd := newShellCommand(item.Command, p.Path)
+	cmd := newShellCommand(command, p.Path)
 
 	if hasPTYSupport() && isTerminal(os.Stdout) {
 		return execForegroundPTY(p, item, cmd, buffered)
