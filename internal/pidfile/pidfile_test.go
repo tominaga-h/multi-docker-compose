@@ -168,6 +168,64 @@ func TestKillAll(t *testing.T) {
 	}
 }
 
+func TestKillAllConfigs(t *testing.T) {
+	cleanup := withTempBaseDir(t)
+	defer cleanup()
+
+	if err := Save("cfg1", "proj1", []Entry{{PID: 999999991, Command: "fake1"}}); err != nil {
+		t.Fatal(err)
+	}
+	if err := Save("cfg2", "proj2", []Entry{{PID: 999999992, Command: "fake2"}}); err != nil {
+		t.Fatal(err)
+	}
+
+	logDir1, err := ProcLogDir("cfg1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	logDir2, err := ProcLogDir("cfg2")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(logDir1, "proj1"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(logDir2, "proj2"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(logDir1, "proj1", "999999991.log"), []byte("log1"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(logDir2, "proj2", "999999992.log"), []byte("log2"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := KillAllConfigs(); err != nil {
+		t.Fatalf("KillAllConfigs() error: %v", err)
+	}
+
+	pidDir1, err := Dir("cfg1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	pidDir2, err := Dir("cfg2")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(pidDir1); !os.IsNotExist(err) {
+		t.Errorf("cfg1 PID directory should be removed after KillAllConfigs, err = %v", err)
+	}
+	if _, err := os.Stat(pidDir2); !os.IsNotExist(err) {
+		t.Errorf("cfg2 PID directory should be removed after KillAllConfigs, err = %v", err)
+	}
+	if _, err := os.Stat(logDir1); !os.IsNotExist(err) {
+		t.Errorf("cfg1 log directory should be removed after KillAllConfigs, err = %v", err)
+	}
+	if _, err := os.Stat(logDir2); !os.IsNotExist(err) {
+		t.Errorf("cfg2 log directory should be removed after KillAllConfigs, err = %v", err)
+	}
+}
+
 func TestKillAllNonexistentConfig(t *testing.T) {
 	cleanup := withTempBaseDir(t)
 	defer cleanup()

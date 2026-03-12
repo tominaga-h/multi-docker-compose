@@ -207,6 +207,30 @@ func KillAll(configName string) error {
 	return KillAllWithCallback(configName, nil)
 }
 
+// KillAllConfigs kills tracked processes for all configs.
+func KillAllConfigs() error {
+	return KillAllConfigsWithCallback(nil)
+}
+
+// KillAllConfigsWithCallback kills tracked processes for all configs and calls
+// onStop before each process is terminated.
+func KillAllConfigsWithCallback(onStop StopFunc) error {
+	allConfigs, err := LoadAllConfigs()
+	if err != nil {
+		return err
+	}
+	var failures []string
+	for configName := range allConfigs {
+		if err := KillAllWithCallback(configName, onStop); err != nil {
+			failures = append(failures, fmt.Sprintf("%s: %v", configName, err))
+		}
+	}
+	if len(failures) > 0 {
+		return fmt.Errorf("failed to kill some configs:\n  %s", strings.Join(failures, "\n  "))
+	}
+	return nil
+}
+
 func KillAllWithCallback(configName string, onStop StopFunc) error {
 	projects, err := LoadAll(configName)
 	if err != nil {
